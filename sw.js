@@ -1,6 +1,6 @@
 'use strict';
 
-const NOMBRE_CACHE = 'inspeccion-pwa-v3';
+const NOMBRE_CACHE = 'inspeccion-pwa-v4';
 
 const RECURSOS_PRECACHE = [
   './',
