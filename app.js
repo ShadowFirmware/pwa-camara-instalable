@@ -1,8 +1,5 @@
 'use strict';
 
-/* =========================================================
- * Referencias a la interfaz
- * ========================================================= */
 const btnInstalar = document.getElementById('btn-instalar');
 const btnPrepararCamara = document.getElementById('btn-preparar-camara');
 const btnConfirmarPermiso = document.getElementById('btn-confirmar-permiso');
@@ -20,9 +17,7 @@ function actualizarMensajeEstado(texto) {
   mensajeEstado.textContent = texto;
 }
 
-/* =========================================================
- * Fase 1: Registro del Service Worker
- * ========================================================= */
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js', { scope: './' })
@@ -35,17 +30,13 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-/* =========================================================
- * Fase 1: Instalación personalizada (beforeinstallprompt)
- * ========================================================= */
+
 let eventoInstalacionDiferido = null;
 
 window.addEventListener('beforeinstallprompt', (event) => {
-  // Evita que el mini-banner automático aparezca antes de tiempo
   event.preventDefault();
   eventoInstalacionDiferido = event;
 
-  // Muestra el botón personalizado de instalación en la UI
   btnInstalar.hidden = false;
 });
 
@@ -69,7 +60,6 @@ btnInstalar.addEventListener('click', () => {
       console.error('[App] Error durante la instalación:', error);
     })
     .finally(() => {
-      // El evento solo puede usarse una vez
       eventoInstalacionDiferido = null;
     });
 });
@@ -80,9 +70,7 @@ window.addEventListener('appinstalled', () => {
   actualizarMensajeEstado('Aplicación instalada correctamente.');
 });
 
-/* =========================================================
- * Fase 2: Control de cámara
- * ========================================================= */
+
 let streamActual = null;
 let modoCamaraActual = 'environment'; // 'environment' = trasera | 'user' = frontal
 
@@ -98,7 +86,6 @@ function actualizarControles(camaraEncendida) {
   visorContenedor.classList.toggle('frontal', camaraEncendida && modoCamaraActual === 'user');
 }
 
-// Fragmento C: liberar el sensor antes de cualquier cambio
 function detenerCamaraActiva() {
   if (streamActual) {
     streamActual.getTracks().forEach((track) => {
@@ -108,7 +95,6 @@ function detenerCamaraActiva() {
   }
 }
 
-// Fragmento D: encendido con promesas y diagnóstico de errores
 function iniciarCamara(modo) {
   detenerCamaraActiva();
 
@@ -148,32 +134,22 @@ function iniciarCamara(modo) {
     });
 }
 
-/* =========================================================
- * Fragmento E: Flujo de Pre-Permiso (UX ética)
- * ========================================================= */
-
-// Paso 1: el usuario expresa su intención -> mostramos el aviso explicativo
 btnPrepararCamara.addEventListener('click', () => {
   avisoLente.textContent = nombreLente(modoCamaraActual).toLowerCase();
   avisoPermiso.hidden = false;
   avisoPermiso.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 
-// Paso 2: el usuario lee el motivo y confirma -> recién aquí se pide el permiso nativo
 btnConfirmarPermiso.addEventListener('click', () => {
   avisoPermiso.hidden = true;
   iniciarCamara(modoCamaraActual);
 });
 
-// Alternativa: el usuario decide no continuar (no se toca el permiso nativo)
 btnCancelarPermiso.addEventListener('click', () => {
   avisoPermiso.hidden = true;
   actualizarMensajeEstado('No se encendió la cámara. Puedes solicitarla cuando quieras.');
 });
 
-/* =========================================================
- * Desafío 2: Alternancia de lentes y apagado
- * ========================================================= */
 btnAlternarCamara.addEventListener('click', () => {
   modoCamaraActual = modoCamaraActual === 'environment' ? 'user' : 'environment';
   iniciarCamara(modoCamaraActual);
@@ -186,5 +162,4 @@ btnApagarCamara.addEventListener('click', () => {
   actualizarMensajeEstado('Cámara apagada. El sensor fue liberado.');
 });
 
-// Liberar el sensor si la página se oculta o se cierra
 window.addEventListener('pagehide', detenerCamaraActiva);

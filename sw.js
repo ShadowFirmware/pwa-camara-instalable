@@ -1,6 +1,6 @@
 'use strict';
 
-const NOMBRE_CACHE = 'inspeccion-pwa-v1';
+const NOMBRE_CACHE = 'inspeccion-pwa-v2';
 
 const RECURSOS_PRECACHE = [
   './',
@@ -12,7 +12,6 @@ const RECURSOS_PRECACHE = [
   './icons/icon-512.png'
 ];
 
-// Instalación: precache del App Shell
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(NOMBRE_CACHE)
@@ -21,7 +20,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activación: limpieza de cachés antiguas y toma de control inmediata
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
@@ -34,7 +32,6 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Estrategia Cache First: primero la caché, si no existe se va a la red
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') {
     return;
@@ -57,7 +54,6 @@ self.addEventListener('fetch', (event) => {
           });
       })
       .catch(() => {
-        // Sin red ni caché: para navegaciones devolvemos el App Shell
         if (event.request.mode === 'navigate') {
           return caches.match('./index.html');
         }
